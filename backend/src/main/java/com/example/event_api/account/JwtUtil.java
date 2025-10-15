@@ -21,18 +21,16 @@ public class JwtUtil {
     }
 
     public String extractEmail(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(jwtSecret)
-                .build()
+        return Jwts.parser()
+                .setSigningKey(jwtSecret.getEncoded())
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
     }
 
     private boolean isTokenExpired(String token) {
-        Date expiration = Jwts.parserBuilder()
-                .setSigningKey(jwtSecret)
-                .build()
+        Date expiration = Jwts.parser()
+                .setSigningKey(jwtSecret.getEncoded())
                 .parseClaimsJws(token)
                 .getBody()
                 .getExpiration();
