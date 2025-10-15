@@ -14,7 +14,7 @@ public class JwtUtil {
                 .setSubject(username)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 86400000)) // 1 día
-                .signWith(jwtSecret)
+                .signWith(SignatureAlgorithm.HS256, jwtSecret.getEncoded())
                 .compact();
     }
 }

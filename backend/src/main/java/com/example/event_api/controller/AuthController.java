@@ -1,6 +1,6 @@
 package com.example.event_api.controller;
 
-import com.example.event_api.dto.LoginRequest;
+import com.example.event_api.account.LoginRequest;
 import com.example.event_api.account.TokenService;
 import com.example.event_api.model.Customer;
 import com.example.event_api.repository.CustomerRepository;
