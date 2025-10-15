@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import com.example.event_api.account.JwtUtil;
 
 import java.io.IOException;
 
@@ -22,6 +21,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
             String requestPath = request.getRequestURI();
+            String requestMethod = request.getMethod();
+
+            //add CORS headers to all responses
+            response.setHeader("Access-Control-Allow-Origin", "http://localhost:3000");
+            response.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+            response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
+            response.setHeader("Access-Control-Allow-Credentials", "true");
+
+            //allow CORS preflight requests 
+            if ("OPTIONS".equalsIgnoreCase(requestMethod)) {
+                response.setStatus(HttpServletResponse.SC_OK);
+                return;
+            }
 
             if (requestPath.startsWith("/account") || requestPath.contains("/h2-console")) {
                 filterChain.doFilter(request, response);
@@ -30,7 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if(requestPath.startsWith("/api/customers")){
                 String authHeader = request.getHeader("Authorization");
                 
-                // Check if Authorization header exists and has correct format
+                //check if authorization header exists + has correct format
                 if (authHeader == null || !authHeader.startsWith("Bearer ")){
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     response.setContentType("application/json");
@@ -38,18 +50,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     return;
                 }
                 
-                // Extract and validate token
+                //extract and validate token
                 String token = authHeader.substring(7); // Remove "Bearer "
                 try{
-                    String email = jwtUtil.extractEmail(token);
-                    if(!jwtUtil.validateToken(token, email)){
-                        // Token is invalid or expired
+                    String username = jwtUtil.extractEmail(token); // This actually extracts username, not email
+                    
+                    //check if token is not expired 
+                    if(!jwtUtil.validateToken(token, username)){
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                         response.setContentType("application/json");
                         response.getWriter().write("{\"error\": \"Invalid or expired token\"}");
                         return;
                     }
-                    // Token is valid, continue to controller
+                    //token is valid
                     filterChain.doFilter(request, response);
 
                 }catch(Exception e){
@@ -59,7 +72,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     return;
                 }
             } else {
-                // For paths other than /api/customers, just continue
                 filterChain.doFilter(request, response);
             }
     }
