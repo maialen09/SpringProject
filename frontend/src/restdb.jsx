@@ -1,5 +1,5 @@
 // servers must allow CORS requests for these urls to work
-const custBaseURL = 'http://localhost:4000/api/customers';
+const custBaseURL = 'http://localhost:8080/api/customers';
 const authBaseUrl = 'http://localhost:8081/account';
 
 let token = null;
