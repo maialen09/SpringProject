@@ -1,12 +1,13 @@
 package com.example.event_api.controller;
 
-import com.example.event_api.account.LoginRequest;
-import com.example.event_api.account.JwtUtil;
-import com.example.event_api.customer.Customer;
-import com.example.event_api.customer.CustomerRepository;
+import com.example.event_api.dto.LoginRequest;
+import com.example.event_api.account.TokenService;
+import com.example.event_api.model.Customer;
+import com.example.event_api.repository.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/account")
@@ -15,13 +16,26 @@ public class AuthController {
     @Autowired
     private CustomerRepository customerRepository;
 
+    @Autowired
+    private TokenService tokenService;
+
     @PostMapping("/token")
     public ResponseEntity<?> getToken(@RequestBody LoginRequest loginRequest) {
-        Customer customer = customerRepository.findByUsername(loginRequest.getUsername());
-        if (customer == null || !customer.getPassword().equals(loginRequest.getPassword())) {
-            return ResponseEntity.status(401).body("Invalid username or password");
+        return customerRepository.findByEmail(loginRequest.getUsername())
+            .filter(customer -> customer.getPassword().equals(loginRequest.getPassword()))
+            .map(customer -> ResponseEntity.ok(tokenService.generateToken(customer.getUsername())))
+            .orElseGet(() -> ResponseEntity.status(401).body("Invalid username or password"));
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody Customer customer) {
+        if (customer.getName() == null || customer.getEmail() == null || customer.getPassword() == null) {
+            return ResponseEntity.badRequest().body("Name, email, and password are required");
         }
-        String token = JwtUtil.generateToken(customer.getUsername());
-        return ResponseEntity.ok(token);
+        if (customerRepository.existsByEmail(customer.getEmail())) {
+            return ResponseEntity.status(409).body("Email already registered");
+        }
+        customerRepository.save(customer);
+        return ResponseEntity.ok("Registration successful");
     }
 }
