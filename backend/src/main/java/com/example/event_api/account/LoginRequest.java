@@ -1,4 +1,4 @@
-package com.example.event_api.dto;
+package com.example.event_api.account;
 
 public class LoginRequest {
     private String username;
