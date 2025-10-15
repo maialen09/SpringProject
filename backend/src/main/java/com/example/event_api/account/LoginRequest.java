@@ -1,4 +1,4 @@
-package com.example.event_api.dto;
+package com.example.event_api.account;
 
 public class LoginRequest {
     private String username;
@@ -28,17 +28,4 @@ public class LoginRequest {
     public void setPassword(String password) {
         this.password = password;
     }
-
-    // Override Spring Boot's default user with
-    // our own user, password, and authorities:
-    @Bean
-    public InMemoryUserDetailsManager users() {
-        return new InMemoryUserDetailsManager(
-            User.withUsername("client")
-                .password("{noop}DoNotTell")
-                .authorities("read")
-                .build()
-    );
-    }
-
 }
