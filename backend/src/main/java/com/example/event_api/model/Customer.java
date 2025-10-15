@@ -54,6 +54,10 @@ public class Customer {
         this.password = password;
     }
 
+    public String getUsername() {
+        return email;
+    }
+
 	public Customer() {
 	}
 
