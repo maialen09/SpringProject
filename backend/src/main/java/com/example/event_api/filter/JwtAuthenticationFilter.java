@@ -1,6 +1,6 @@
 package com.example.event_api.filter;
 
-import com.example.event_api.util.JwtUtil;
+import com.example.event_api.account.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import com.example.event_api.account.JwtUtil;
 
 import java.io.IOException;
 
@@ -18,39 +19,51 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private JwtUtil jwtUtil;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain){
-        throws ServletException, IOException{
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+        throws ServletException, IOException {
             String requestPath = request.getRequestURI();
 
-            if (requestPath.contains("/account") || requestPath.contains("/h2-console")) {
+            if (requestPath.startsWith("/account") || requestPath.contains("/h2-console")) {
                 filterChain.doFilter(request, response);
                 return;
             }
-            if(requestPath.contains("/api/customers")){
+            if(requestPath.startsWith("/api/customers")){
                 String authHeader = request.getHeader("Authorization");
-                if (authHeader == null || !authHeader.contains("Bearer ")){
+                
+                // Check if Authorization header exists and has correct format
+                if (authHeader == null || !authHeader.startsWith("Bearer ")){
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     response.setContentType("application/json");
-                    response.getWriter().write("{\"error\": \"Unauthorized\"}");
+                    response.getWriter().write("{\"error\": \"Missing or invalid Authorization header\"}");
                     return;
                 }
-                String token = authHeader.substring(7); //removes the bearer string
+                
+                // Extract and validate token
+                String token = authHeader.substring(7); // Remove "Bearer "
                 try{
                     String email = jwtUtil.extractEmail(token);
                     if(!jwtUtil.validateToken(token, email)){
-                        //token invalid response
-                        response.setStatus(401);
-                        response.getWriter().write("{\"error\": \"Invalid token\"}");
+                        // Token is invalid or expired
+                        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        response.setContentType("application/json");
+                        response.getWriter().write("{\"error\": \"Invalid or expired token\"}");
                         return;
                     }
-                    filterChain.doFilter(request, response); //only valid tokens
+                    // Token is valid, continue to controller
+                    filterChain.doFilter(request, response);
 
                 }catch(Exception e){
-                    response.setStatus(401);
-                    response.getWriter().write("{\"error\": \"Token validation error\"}");
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\": \"Token validation failed: " + e.getMessage() + "\"}");
+                    return;
                 }
+            } else {
+                // For paths other than /api/customers, just continue
+                filterChain.doFilter(request, response);
             }
-        }
-
     }
+
 }
+
+
