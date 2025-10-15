@@ -19,14 +19,6 @@ public class AuthController {
     @Autowired
     private TokenService tokenService;
 
-    @PostMapping("/token")
-    public ResponseEntity<?> getToken(@RequestBody LoginRequest loginRequest) {
-        return customerRepository.findByEmail(loginRequest.getUsername())
-            .filter(customer -> customer.getPassword().equals(loginRequest.getPassword()))
-            .map(customer -> ResponseEntity.ok(tokenService.generateToken(customer.getUsername())))
-            .orElseGet(() -> ResponseEntity.status(401).body("Invalid username or password"));
-    }
-
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Customer customer) {
         if (customer.getName() == null || customer.getEmail() == null || customer.getPassword() == null) {
