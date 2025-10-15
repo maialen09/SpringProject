@@ -1,3 +1,16 @@
+# Running the Account service and the Data server
+
+Account Service command:
+```bash
+./gradlew bootRun --args='--spring.profiles.active=account'
+```
+
+Data Service command:
+```bash
+./gradlew bootRun --args='--spring.profiles.active=data'
+```
+
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
