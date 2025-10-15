@@ -15,6 +15,9 @@ public class AccountController {
     @Autowired
     private CustomerRepository customerRepository;
 
+    @Autowired
+    private JwtUtil jwtUtil;
+
     // Root endpoint: GET /account
     @GetMapping
     public String accountStatus() {
@@ -28,7 +31,7 @@ public class AccountController {
         if (customer == null || !customer.getPassword().equals(loginRequest.getPassword())) {
             return ResponseEntity.status(401).body("Invalid username or password");
         }
-        String token = JwtUtil.generateToken(customer.getName());
+        String token = jwtUtil.generateToken(customer.getName());
         return ResponseEntity.ok(token);
     }
 }
