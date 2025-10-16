@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/account")
 public class AccountController {
@@ -33,5 +34,20 @@ public class AccountController {
         }
         String token = jwtUtil.generateToken(customer.getName());
         return ResponseEntity.ok(token);
+    }
+
+    // @Autowired
+    // private TokenService tokenService;
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody Customer customer) {
+        if (customer.getName() == null || customer.getEmail() == null || customer.getPassword() == null) {
+            return ResponseEntity.badRequest().body("Name, email, and password are required");
+        }
+        if (customerRepository.existsByEmail(customer.getEmail())) {
+            return ResponseEntity.status(409).body("Email already registered");
+        }
+        customerRepository.save(customer);
+        return ResponseEntity.ok("Registration successful");
     }
 }
