@@ -7,6 +7,7 @@ import com.example.event_api.account.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.example.event_api.account.RegisterRequest;
 
 @RestController
 @RequestMapping("/account")
@@ -36,18 +37,24 @@ public class AccountController {
         return ResponseEntity.ok(token);
     }
 
-    // @Autowired
-    // private TokenService tokenService;
-
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody Customer customer) {
-        if (customer.getName() == null || customer.getEmail() == null || customer.getPassword() == null) {
-            return ResponseEntity.badRequest().body("Name, email, and password are required");
+    public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
+        if (customerRepository.findByName(registerRequest.getName()) != null) {
+            return ResponseEntity.status(400).body("Username already exists");
         }
-        if (customerRepository.existsByEmail(customer.getEmail())) {
+        if (customerRepository.findByEmail(registerRequest.getEmail()).isPresent()) {
+            return ResponseEntity.status(400).body("Email already registered");
+        }
+
+        if (customerRepository.existsByEmail(registerRequest.getEmail())) {
             return ResponseEntity.status(409).body("Email already registered");
         }
-        customerRepository.save(customer);
-        return ResponseEntity.ok("Registration successful");
+        Customer newCustomer = new Customer();
+        newCustomer.setName(registerRequest.getName());
+        newCustomer.setEmail(registerRequest.getEmail());
+        newCustomer.setPassword(registerRequest.getPassword());
+        customerRepository.save(newCustomer);
+
+        return ResponseEntity.status(201).body("User registered successfully");
     }
 }
