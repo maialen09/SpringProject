@@ -127,13 +127,13 @@ export function lookupCustomerByName(username) {
 
 
 /* LOGIN REQUESTS */
-export async function registerUser( username, password, email) {
-  let url = authBaseUrl +"/register";
+export async function registerUser(username, password, email) {
+  let url = authBaseUrl + "/register";
   let customer = {
     name: username,
     email: email,
     password: password
-  }
+  };
   let body = JSON.stringify(customer);
   var myInit = {
     method: 'POST',

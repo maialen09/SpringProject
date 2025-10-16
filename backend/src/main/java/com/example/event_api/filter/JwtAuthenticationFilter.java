@@ -39,9 +39,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
                 return;
             }
-            if(requestPath.startsWith("/api/customers")){
+            if (requestPath.startsWith("/api/customers")) {
+                // Allow unauthenticated POST to /api/customers (registration)
+                if ("POST".equalsIgnoreCase(requestMethod)) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
                 String authHeader = request.getHeader("Authorization");
-                
                 //check if authorization header exists + has correct format
                 if (authHeader == null || !authHeader.startsWith("Bearer ")){
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -49,12 +53,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     response.getWriter().write("{\"error\": \"Missing or invalid Authorization header\"}");
                     return;
                 }
-                
                 //extract and validate token
                 String token = authHeader.substring(7); // Remove "Bearer "
                 try{
                     String username = jwtUtil.extractEmail(token); // This actually extracts username, not email
-                    
                     //check if token is not expired 
                     if(!jwtUtil.validateToken(token, username)){
                         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -64,7 +66,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     }
                     //token is valid
                     filterChain.doFilter(request, response);
-
                 }catch(Exception e){
                     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                     response.setContentType("application/json");
