@@ -1,8 +1,9 @@
 // servers must allow CORS requests for these urls to work
-const custBaseURL = 'http://localhost:4000/api/customers';
+const custBaseURL = 'http://localhost:8080/api/customers';
 const authBaseUrl = 'http://localhost:8081/account';
 
-let token = null;
+// Get token from localStorage or set to null
+let token = localStorage.getItem('jwtToken') || null;
 
 
 /* CUSTOMER REQUESTS */
@@ -16,10 +17,14 @@ let getHeaders = (token) => {
 }
 
 export async function getAll(setCustomers) {
+  // Reload token from localStorage in case page was refreshed
+  token = localStorage.getItem('jwtToken') || token;
+  console.log("Using token for getAll:", token); // Debug log
+  
   const myInit = {
     method: 'GET',
     mode: 'cors',
-    headers: getHeaders()
+    headers: getHeaders(token)  // Pass the stored token
   };
   const fetchData = async (url) => {
     try {
@@ -40,7 +45,7 @@ export async function deleteById(id, postopCallback) {
   const myInit = {
     method: 'DELETE',
     mode: 'cors',
-    headers: getHeaders()
+    headers: getHeaders(token)  // Pass token
   };
   const deleteItem = async (url) => {
     try {
@@ -61,7 +66,7 @@ export function post(customer, postopCallback) {
   const myInit = {
     method: 'POST',
     body: JSON.stringify(customer),
-    headers: getHeaders(),
+    headers: getHeaders(token),  // Pass token
     mode: 'cors'
   };
   const postItem = async (url) => {
@@ -82,7 +87,7 @@ export function put(customer, postopCallback) {
   const myInit = {
     method: 'PUT',
     body: JSON.stringify(customer),
-    headers: getHeaders(),
+    headers: getHeaders(token),  // Pass token
     mode: 'cors'
   };
   const putItem = async (url) => {
@@ -164,13 +169,22 @@ export function callTokenService(customer) {
 
 
 export async function getJWTToken(username, password) {
-  let customer = { "name": username, password };
+  let customer = { "username": username, password };
 
   const response = await callTokenService(customer);
   if (!response.ok) {
     return { "status": "error", "message": "Login failed: " + response.status };
   }
-  return { "status": "success", "message": "Login successful", "token": token };
+  
+  // Extract token from response
+  const responseToken = await response.text();
+  console.log("Token received:", responseToken); // Debug log
+  
+  // Store token in module variable and localStorage
+  token = responseToken;
+  localStorage.setItem('jwtToken', responseToken);
+  
+  return { "status": "success", "message": "Login successful", "token": responseToken };
 }
 
 
