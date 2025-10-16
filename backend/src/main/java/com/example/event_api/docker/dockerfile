@@ -1,0 +1,15 @@
+# FROM openjdk: 25-ea-21-jdk-slim-bullseye
+
+# This is a comment, and LABEL is metadata.
+# LABEL maintainer="labadmin"
+# LABEL version="1.0"
+# LABEL description="Dockerfile for Event API Spring Boot Application"
+# #MAke sure the software on the container is up to date
+# RUN apt-get update && apt-get -y upgrade
+# RUN mkdir /app
+# Copy the application JAR file to the container at /app.jar
+# Define which port number can be mapped to this container
+
+
+
+
