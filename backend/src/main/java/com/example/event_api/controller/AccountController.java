@@ -1,4 +1,7 @@
+
 package com.example.event_api.controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
+
 
 import com.example.event_api.model.Customer;
 import com.example.event_api.repository.CustomerRepository;
@@ -8,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/account")
-@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class AccountController {
 
     @Autowired
