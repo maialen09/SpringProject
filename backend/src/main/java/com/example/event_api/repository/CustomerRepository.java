@@ -1,6 +1,7 @@
 package com.example.event_api.repository;
-import com.example.event_api.model.Customer;
+
 import org.springframework.data.repository.CrudRepository;
+import com.example.event_api.model.Customer;
 import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
