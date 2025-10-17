@@ -1,5 +1,6 @@
 -- Customer table (for login/authentication)
 DROP TABLE IF EXISTS customers;
+DROP TABLE IF EXISTS events;
 
 CREATE TABLE "CUSTOMERS" (
     "ID" INTEGER AUTO_INCREMENT PRIMARY KEY, 

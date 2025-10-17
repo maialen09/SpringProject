@@ -73,9 +73,38 @@ export function App(props) {
     onCancelClick: onCancelClick
   }
 
+  // Simulate events for the logged-in user
+  const userEvents = [
+    { event_name: "React Conference", event_date: "2025-11-10", event_location: "Madrid" },
+    { event_name: "Spring Boot Meetup", event_date: "2025-12-05", event_location: "Bilbao" },
+    { event_name: "Docker Day", event_date: "2026-01-20", event_location: "Barcelona" }
+  ];
+
   return ( 
     <div>
       <Account username={props.username} setUsername={props.setUsername}  />
+      {/* Events Section */}
+      <div className="boxed" style={{marginBottom: '2em'}}>
+        <h4>My Events</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Event Name</th>
+              <th>Date</th>
+              <th>Location</th>
+            </tr>
+          </thead>
+          <tbody>
+            {userEvents.map((event, idx) => (
+              <tr key={idx}>
+                <td>{event.event_name}</td>
+                <td>{event.event_date}</td>
+                <td>{event.event_location}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
       <CustomerList
         customers={customers}
         formObject={formObject}
