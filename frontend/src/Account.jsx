@@ -41,6 +41,14 @@ export function Account(props) {
             />
             {props.username}
           </button>
+          <button className='floatR icon-button' style={{marginLeft: '10px'}}>
+            <img
+              src="/event.jpg"
+              alt="Events"
+              style={{ width: '24px', height: '24px' }}
+            />
+            Events
+          </button>
         </h3>
       </div>
     </div>
