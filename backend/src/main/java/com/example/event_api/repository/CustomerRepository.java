@@ -10,3 +10,6 @@ public interface CustomerRepository extends CrudRepository<Customer, Long> {
     boolean existsByEmail(String email);
     Customer findByName(String name);
 }
+
+
+

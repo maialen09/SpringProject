@@ -2,3 +2,8 @@ insert into CUSTOMERS (CUSTOMER_NAME, EMAIL, PASSWORD) VALUES ('admin', 'admin@a
 insert into CUSTOMERS (CUSTOMER_NAME, EMAIL, PASSWORD) VALUES ('Bruce', 'bruce@a.com', 'password1');
 insert into CUSTOMERS (CUSTOMER_NAME, EMAIL, PASSWORD) VALUES ('Paul', 'paul@b.com', 'password2');
 insert into CUSTOMERS (CUSTOMER_NAME, EMAIL, PASSWORD) VALUES ('Rick', 'rick@c.com', 'password3');
+
+insert into EVENTS (EVENT_NAME, EVENT_DATE, LOCATION) VALUES ('Spring Festival', '2024-05-01', 'Central Park');
+insert into EVENTS (EVENT_NAME, EVENT_DATE, LOCATION) VALUES ('Tech Conference', '2024-06-15', 'Convention Center');
+insert into EVENTS (EVENT_NAME, EVENT_DATE, LOCATION) VALUES ('Music Concert', '2024-07-20', 'Downtown Arena'); 
+insert into EVENTS (EVENT_NAME, EVENT_DATE, LOCATION) VALUES ('Art Exhibition', '2024-08-05', 'City Gallery');

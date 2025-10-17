@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  account:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: account-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=account
+    ports:
+      - "8081:8081"
+    volumes:
+      - ./backend/docker-data:/app/data
+
+  data:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: data-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=data
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend/docker-data:/app/data
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:80"
+    environment:
+      - VITE_API_CUSTOMERS_URL=http://localhost:8080
+      - VITE_API_ACCOUNT_URL=http://localhost:8081
+    depends_on:
+      - data
+      - account
+

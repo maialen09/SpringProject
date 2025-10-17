@@ -1,6 +1,5 @@
 package com.example.event_api.controller;
 
-import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.*;
 import org.springframework.web.bind.annotation.*;
 import com.example.event_api.repository.CustomerRepository;
