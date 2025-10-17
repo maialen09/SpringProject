@@ -15,7 +15,7 @@ public class Event {
 	long id;
 	
 	@Column(name="EVENT_NAME")
-	String event_name;
+	String eventName;
 	
 	String event_date;
 
@@ -30,11 +30,11 @@ public class Event {
 	}
 
 	public String getEventName() {
-		return event_name;
+		return eventName;
 	}
 
-	public void setEventName(String event_name) {
-		this.event_name = event_name;
+	public void setEventName(String eventName) {
+		this.eventName = eventName;
 	}
 
 	public String getEventDate() {
@@ -56,9 +56,9 @@ public class Event {
 	public Event(){  
 	}
 
-	public Event(long id, String event_name, String event_date, String location) {
+	public Event(long id, String eventName, String event_date, String location) {
 		this.id = id;
-		this.event_name = event_name;
+		this.eventName = eventName;
         this.event_date = event_date;
         this.location = location;
 		
