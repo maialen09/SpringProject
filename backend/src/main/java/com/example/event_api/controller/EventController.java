@@ -8,16 +8,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import java.util.List;
 
+@RestController
 @RequestMapping("/api/events")
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class EventController {
     @Autowired
-	private EventRepository EventRepository;
+	public EventRepository eventRepository;
 
     //Get all events
     @GetMapping()
     public ResponseEntity<List<Event>> getAllEvents() {
-        List<Event> events = (List<Event>) EventRepository.findAll();
+        List<Event> events = (List<Event>) eventRepository.findAll();
         if (events.isEmpty()){
             System.out.println("no events found");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
