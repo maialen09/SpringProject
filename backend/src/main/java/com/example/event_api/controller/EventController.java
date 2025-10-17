@@ -27,47 +27,47 @@ public class EventController {
         return new ResponseEntity<>(events, HttpStatus.OK);
     }
     
-//    @GetMapping("/{id}")
-//     public ResponseEntity<Event> getEventById(@PathVariable Long id) {
-//         return eventRepository.findById(id)
-//                 .map(event -> new ResponseEntity<>(event, HttpStatus.OK))
-//                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-//     }  
+   @GetMapping("/{id}")
+    public ResponseEntity<Event> getEventById(@PathVariable Long id) {
+        return eventRepository.findById(id)
+                .map(event -> new ResponseEntity<>(event, HttpStatus.OK))
+                .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }  
     
-//     //create
-//     @PostMapping()
-//     public ResponseEntity<List<Event>> createEvents(@RequestBody Event event) {
-//         eventRepository.save(event);
-//         List<Event> events = (List<Event>) eventRepository.findAll();
-//         System.out.println("Created event with id: " + event.getId());
-//         return new ResponseEntity<>(events, HttpStatus.CREATED);    
-//     }
+    //create
+    @PostMapping()
+    public ResponseEntity<List<Event>> createEvents(@RequestBody Event event) {
+        eventRepository.save(event);
+        List<Event> events = (List<Event>) eventRepository.findAll();
+        System.out.println("Created event with id: " + event.getId());
+        return new ResponseEntity<>(events, HttpStatus.CREATED);    
+    }
 
-//     //update
-//     @PutMapping("/{id}")
-//     public ResponseEntity<Event> updateEvent(@PathVariable Long id, @RequestBody Event event) {
-//         Event existingEvent = eventRepository.findById(id).orElse(null);
-//         if (existingEvent == null) {
-//             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//         }
-//         existingEvent.setEventName(event.getEventName());
-//         existingEvent.setEventDate(event.getEventDate());
-//         existingEvent.setLocation(event.getLocation());
-//         eventRepository.save(existingEvent);
-//         System.out.println("Updated event with id: " + id);
-//         return new ResponseEntity<>(existingEvent, HttpStatus.OK);
-//     }
+    //update
+    @PutMapping("/{id}")
+    public ResponseEntity<Event> updateEvent(@PathVariable Long id, @RequestBody Event event) {
+        Event existingEvent = eventRepository.findById(id).orElse(null);
+        if (existingEvent == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        existingEvent.setEventName(event.getEventName());
+        existingEvent.setEventDate(event.getEventDate());
+        existingEvent.setLocation(event.getLocation());
+        eventRepository.save(existingEvent);
+        System.out.println("Updated event with id: " + id);
+        return new ResponseEntity<>(existingEvent, HttpStatus.OK);
+    }
 
-//     //delete
-//     @DeleteMapping("/{id}")
-//     public ResponseEntity<List<Event>> deleteEvent(@PathVariable Long id) {
-//         if (!eventRepository.existsById(id)) {
-//             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//         }
-//         eventRepository.deleteById(id);
-//         List<Event> events = (List<Event>) eventRepository.findAll();
-//         System.out.println("Deleted event with id: " + id);
-//         return new ResponseEntity<>(events, HttpStatus.OK);
-//     }
+    //delete
+    @DeleteMapping("/{id}")
+    public ResponseEntity<List<Event>> deleteEvent(@PathVariable Long id) {
+        if (!eventRepository.existsById(id)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        eventRepository.deleteById(id);
+        List<Event> events = (List<Event>) eventRepository.findAll();
+        System.out.println("Deleted event with id: " + id);
+        return new ResponseEntity<>(events, HttpStatus.OK);
+    }
 }
 
