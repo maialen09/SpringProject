@@ -84,4 +84,5 @@ public class EventController {
         if (!eventRepository.existsById(id)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
 }
