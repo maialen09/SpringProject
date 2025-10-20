@@ -78,7 +78,8 @@ export function App(props) {
 
   // Store registrations to link event and registrationId
   const [registrations, setRegistrations] = useState([]);
-  useEffect(() => {
+  
+  const fetchUserEvents = () => {
     const customerId = localStorage.getItem('customerId');
     if (!customerId) return;
     fetch(`http://localhost:8080/api/registrations/customer/${customerId}`)
@@ -94,17 +95,31 @@ export function App(props) {
         const eventsWithRegId = events.map((event, idx) => event ? { ...event, registrationId: regs[idx].id } : null);
         setUserEvents(eventsWithRegId.filter(e => e));
       });
+  };
+  
+  useEffect(() => {
+    fetchUserEvents();
+    
+    // Listen for registration updates from Account component
+    const handleRegistrationUpdate = () => {
+      fetchUserEvents();
+    };
+    window.addEventListener('registrationsUpdated', handleRegistrationUpdate);
+    
+    return () => {
+      window.removeEventListener('registrationsUpdated', handleRegistrationUpdate);
+    };
   }, []);
 
   // Delete registration for an event
-  const handleDeleteEvent = (registrationId) => {
-    fetch(`http://localhost:8080/api/registrations/${registrationId}`, { method: 'DELETE' })
-      .then(res => {
-        if (res.ok) {
-          // Remove event from userEvents
-          setUserEvents(prev => prev.filter(ev => ev.registrationId !== registrationId));
-        }
-      });
+  const handleDeleteEvent = async (registrationId) => {
+    const response = await fetch(`http://localhost:8080/api/registrations/${registrationId}`, { method: 'DELETE' });
+    if (response.ok) {
+      // Remove event from userEvents
+      setUserEvents(prev => prev.filter(ev => ev.registrationId !== registrationId));
+      // Trigger event to update Account component
+      window.dispatchEvent(new Event('registrationsUpdated'));
+    }
   };
 
   return ( 

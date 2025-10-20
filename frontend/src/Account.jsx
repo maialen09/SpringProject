@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export function Account(props) {
   
@@ -66,25 +66,39 @@ export function Account(props) {
   };
 
   // Fetch events and registrations when showing events
-  if (showEvents && !eventsLoaded) {
-    fetchEvents();
-    fetchUserRegistrations();
-  }
+  useEffect(() => {
+    if (showEvents && !eventsLoaded) {
+      fetchEvents();
+      fetchUserRegistrations();
+    }
+    
+    // Listen for registration updates from AppPage component
+    const handleRegistrationUpdate = () => {
+      if (showEvents) {
+        fetchUserRegistrations();
+      }
+    };
+    window.addEventListener('registrationsUpdated', handleRegistrationUpdate);
+    
+    return () => {
+      window.removeEventListener('registrationsUpdated', handleRegistrationUpdate);
+    };
+  }, [showEvents, eventsLoaded]);
 
   // Register for an event
-  const handleRegisterEvent = (eventId) => {
+  const handleRegisterEvent = async (eventId) => {
     const customerId = localStorage.getItem('customerId');
     if (!customerId) return;
-    fetch('http://localhost:8080/api/registrations', {
+    const response = await fetch('http://localhost:8080/api/registrations', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ customerId: Number(customerId), eventId: eventId })
-    })
-      .then(res => {
-        if (res.ok) {
-          fetchUserRegistrations(); // Refresh registrations
-        }
-      });
+    });
+    if (response.ok) {
+      fetchUserRegistrations(); // Refresh registrations in this component
+      // Trigger a custom event to notify other components
+      window.dispatchEvent(new Event('registrationsUpdated'));
+    }
   };
 
   // Admin: create event (sends Authorization header)
@@ -213,6 +227,7 @@ export function Account(props) {
                           <td>
                             {!isRegistered && !isAdmin && (
                               <button onClick={() => handleRegisterEvent(event.id)} style={{color: 'green'}}>Sign Up</button>
+  
                             )}
                             {isRegistered && !isAdmin && (
                               <span style={{color: 'gray'}}>Registered</span>
