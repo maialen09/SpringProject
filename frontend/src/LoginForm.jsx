@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getJWTToken } from './restdb';
+import { getJWTToken, lookupCustomerByName } from './restdb';
 
 export function LoginForm(props) {
   let [formData, setFormData] = useState({ username: "", password: "" });
@@ -27,12 +27,41 @@ export function LoginForm(props) {
     const response = await getJWTToken(credentials.username, credentials.password);
     setStatus({ status: response.status, message: response.message, token: response.token });
     if (response.status === "error") {
+      return;
     } else if (response.status === "success") {
       props.setUsername(credentials.username);
+      // Fetch customer object and store ID
+      try {
+        const customer = await fetchCustomerId(credentials.username);
+        if (customer && customer.id !== undefined) {
+          localStorage.setItem('customerId', customer.id);
+          console.log('Customer ID stored in localStorage:', customer.id);
+        }
+      } catch (err) {
+        console.error('Error fetching customer ID:', err);
+      }
       navigate("/app");
     }
+  }
 
-
+  // Helper to fetch customer object by username
+  async function fetchCustomerId(username) {
+    const token = localStorage.getItem('jwtToken');
+    const headers = {};
+    if (token) {
+      headers["Authorization"] = "Bearer " + token;
+    }
+    const url = `http://localhost:8080/api/customers/byname?username=${encodeURIComponent(username)}`;
+    const myInit = {
+      method: 'GET',
+      headers,
+      mode: 'cors'
+    };
+    const response = await fetch(url, myInit);
+    if (!response.ok) {
+      throw new Error('Failed to fetch customer by name');
+    }
+    return await response.json();
   }
 
   return (

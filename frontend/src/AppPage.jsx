@@ -73,12 +73,26 @@ export function App(props) {
     onCancelClick: onCancelClick
   }
 
-  // Simulate events for the logged-in user
-  const userEvents = [
-    { event_name: "React Conference", event_date: "2025-11-10", event_location: "Madrid" },
-    { event_name: "Spring Boot Meetup", event_date: "2025-12-05", event_location: "Bilbao" },
-    { event_name: "Docker Day", event_date: "2026-01-20", event_location: "Barcelona" }
-  ];
+  // Real events for the logged-in user
+  const [userEvents, setUserEvents] = useState([]);
+
+  useEffect(() => {
+    const customerId = localStorage.getItem('customerId');
+    if (!customerId) return;
+    // Fetch registrations for this customer
+    fetch(`http://localhost:8080/api/registrations/customer/${customerId}`)
+      .then(res => res.json())
+      .then(async registrations => {
+        // For each registration, fetch event details
+        const eventPromises = registrations.map(reg =>
+          fetch(`http://localhost:8080/api/events/${reg.eventId}`)
+            .then(res => res.ok ? res.json() : null)
+        );
+        const events = await Promise.all(eventPromises);
+        // Filter out failed fetches
+        setUserEvents(events.filter(e => e));
+      });
+  }, []);
 
   return ( 
     <div>
@@ -95,13 +109,17 @@ export function App(props) {
             </tr>
           </thead>
           <tbody>
-            {userEvents.map((event, idx) => (
-              <tr key={idx}>
-                <td>{event.event_name}</td>
-                <td>{event.event_date}</td>
-                <td>{event.event_location}</td>
-              </tr>
-            ))}
+            {userEvents.length === 0 ? (
+              <tr><td colSpan="3">No events found</td></tr>
+            ) : (
+              userEvents.map((event, idx) => (
+                <tr key={idx}>
+                  <td>{event.event_name || event.eventName}</td>
+                  <td>{event.event_date || event.eventDate}</td>
+                  <td>{event.location}</td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

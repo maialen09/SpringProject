@@ -29,17 +29,19 @@ public class AccountController {
     // Token endpoint: POST /account/token
     @PostMapping("/token")
     public ResponseEntity<?> getToken(@RequestBody LoginRequest loginRequest) {
-        Customer customer = customerRepository.findByName(loginRequest.getUsername());
-        if (customer == null || !customer.getPassword().equals(loginRequest.getPassword())) {
+        java.util.Optional<Customer> customerOpt = customerRepository.findByName(loginRequest.getUsername());
+        if (!customerOpt.isPresent() || !customerOpt.get().getPassword().equals(loginRequest.getPassword())) {
             return ResponseEntity.status(401).body("Invalid username or password");
         }
+        Customer customer = customerOpt.get();
         String token = jwtUtil.generateToken(customer.getName());
         return ResponseEntity.ok(token);
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody RegisterRequest registerRequest) {
-        if (customerRepository.findByName(registerRequest.getName()) != null) {
+        java.util.Optional<Customer> customerOpt = customerRepository.findByName(registerRequest.getName());
+        if (customerOpt.isPresent()) {
             return ResponseEntity.status(400).body("Username already exists");
         }
         if (customerRepository.findByEmail(registerRequest.getEmail()).isPresent()) {

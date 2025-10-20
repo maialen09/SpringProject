@@ -27,6 +27,18 @@ public class CustomerController {
         return new ResponseEntity<>(customers, HttpStatus.OK);
     }
 
+    // Get customer by username (for login/customerId lookup)
+    @GetMapping("/byname")
+    public ResponseEntity<Customer> getCustomerByName(@RequestParam String username) {
+        java.util.Optional<Customer> customerOpt = customerRepository.findByName(username);
+        if (customerOpt.isPresent()) {
+            System.out.println("Fetched customer by username: " + username);
+            return new ResponseEntity<>(customerOpt.get(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
     //get single customer by id
     @GetMapping("/{id}")
     public ResponseEntity<Customer> getCustomerbyId(@PathVariable Long id){
