@@ -40,7 +40,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 return;
             }
             
-            // Protect /api/customers and /api/events with JWT
+            // Allow GET requests to /api/events (public access to view events)
+            if (requestPath.startsWith("/api/events") && "GET".equalsIgnoreCase(requestMethod)) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+            
+            // Protect /api/customers and write operations on /api/events with JWT
             if(requestPath.startsWith("/api/customers") || requestPath.startsWith("/api/events")){
                 String authHeader = request.getHeader("Authorization");
                 
