@@ -1,7 +1,7 @@
-insert into CUSTOMERS (CUSTOMER_NAME, EMAIL, PASSWORD) VALUES ('admin', 'admin@admin.com', 'admin');
-insert into CUSTOMERS (CUSTOMER_NAME, EMAIL, PASSWORD) VALUES ('Bruce', 'bruce@a.com', 'password1');
-insert into CUSTOMERS (CUSTOMER_NAME, EMAIL, PASSWORD) VALUES ('Paul', 'paul@b.com', 'password2');
-insert into CUSTOMERS (CUSTOMER_NAME, EMAIL, PASSWORD) VALUES ('Rick', 'rick@c.com', 'password3');
+insert into CUSTOMERS (CUSTOMER_NAME, EMAIL, PASSWORD, ADMIN) VALUES ('admin', 'admin@admin.com', 'admin', TRUE);
+insert into CUSTOMERS (CUSTOMER_NAME, EMAIL, PASSWORD, ADMIN) VALUES ('Bruce', 'bruce@a.com', 'password1', FALSE);
+insert into CUSTOMERS (CUSTOMER_NAME, EMAIL, PASSWORD, ADMIN) VALUES ('Paul', 'paul@b.com', 'password2', FALSE);
+insert into CUSTOMERS (CUSTOMER_NAME, EMAIL, PASSWORD, ADMIN) VALUES ('Rick', 'rick@c.com', 'password3', FALSE);
 
 insert into EVENTS (EVENT_NAME, EVENT_DATE, LOCATION) VALUES ('Spring Festival', '2024-05-01', 'Central Park');
 insert into EVENTS (EVENT_NAME, EVENT_DATE, LOCATION) VALUES ('Tech Conference', '2024-06-15', 'Convention Center');
