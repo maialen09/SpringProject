@@ -102,56 +102,44 @@ export function Account(props) {
   };
 
   // Admin: create event (sends Authorization header)
-  const handleCreateEvent = (event) => {
+  const handleCreateEvent = async (event) => {
     const token = localStorage.getItem('jwtToken');
-    fetch('http://localhost:8080/api/events', {
+    const response = await fetch('http://localhost:8080/api/events', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) },
       body: JSON.stringify(event)
-    })
-      .then(res => {
-        if (res.ok) {
-          setEventsLoaded(false); // force reload next time showing events
-        } else {
-          console.error('Failed to create event', res.status);
-        }
-      });
+    });
+    if (response.ok) {
+      fetchEvents(); // Immediately refresh the events list
+    } else {
+      console.error('Failed to create event', response.status);
+    }
   };
 
   // Admin: delete event (sends Authorization header)
-  const handleDeleteEventAdmin = (eventId) => {
+  const handleDeleteEventAdmin = async (eventId) => {
     const token = localStorage.getItem('jwtToken');
-    fetch(`http://localhost:8080/api/events/${eventId}`, { method: 'DELETE', headers: { ...(token ? { Authorization: 'Bearer ' + token } : {}) } })
-      .then(res => {
-        if (res.ok) setEventsLoaded(false);
-      });
+    const response = await fetch(`http://localhost:8080/api/events/${eventId}`, { method: 'DELETE', headers: { ...(token ? { Authorization: 'Bearer ' + token } : {}) } });
+    if (response.ok) {
+      fetchEvents(); // Immediately refresh the events list
+    }
   };
 
   // Small admin create-event form component
   function AdminCreateEventForm({ onCreate }) {
-    const [form, setForm] = useState({ event_name: '', event_date: '', location: '' });
+    const [form, setForm] = useState({ eventName: '', eventDate: '', location: '' });
     const onChange = (e) => setForm({ ...form, [e.target.name]: e.target.value });
     const onSubmit = (e) => {
       e.preventDefault();
-      const token = localStorage.getItem('jwtToken');
-      fetch('http://localhost:8080/api/events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) },
-        body: JSON.stringify(form)
-      })
-        .then(res => {
-          if (res.ok) {
-            setForm({ event_name: '', event_date: '', location: '' });
-            if (onCreate) onCreate();
-          } else {
-            console.error('Create event failed', res.status);
-          }
-        });
+      // Call the parent's onCreate function with the form data
+      onCreate(form);
+      // Clear the form
+      setForm({ eventName: '', eventDate: '', location: '' });
     };
     return (
       <form onSubmit={onSubmit} style={{ marginBottom: '1em' }}>
-        <input name="event_name" value={form.event_name} onChange={onChange} placeholder="Event Name" required />
-        <input name="event_date" value={form.event_date} onChange={onChange} placeholder="Date (YYYY-MM-DD)" required />
+        <input name="eventName" value={form.eventName} onChange={onChange} placeholder="Event Name" required />
+        <input name="eventDate" value={form.eventDate} onChange={onChange} placeholder="Date (YYYY-MM-DD)" required />
         <input name="location" value={form.location} onChange={onChange} placeholder="Location" required />
         <button type="submit" style={{marginLeft: '8px'}}>Create Event</button>
       </form>
@@ -160,13 +148,6 @@ export function Account(props) {
 
   return (
     <div style={padDivTop}>
-      {/* Debug banner - visible in UI to help diagnose admin flag/token */}
-      <div style={{background:'#fff3cd', border:'1px solid #ffeeba', padding:'8px', marginBottom:'8px'}}>
-        <strong>Debug:</strong>
-        <div>isAdmin prop check: {String(props.username === 'admin')}</div>
-        <div>isAdmin localStorage: {String(localStorage.getItem('isAdmin'))}</div>
-        <div>token present: {localStorage.getItem('jwtToken') ? 'yes' : 'no'}</div>
-      </div>
       <div className='boxed pad5' >
         <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' }}>
           <div style={{ flex: 1 }}>
