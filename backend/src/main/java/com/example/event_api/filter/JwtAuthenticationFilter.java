@@ -39,7 +39,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 filterChain.doFilter(request, response);
                 return;
             }
-            if(requestPath.startsWith("/api/customers")){
+            
+            // Protect /api/customers and /api/events with JWT
+            if(requestPath.startsWith("/api/customers") || requestPath.startsWith("/api/events")){
                 String authHeader = request.getHeader("Authorization");
                 
                 //check if authorization header exists + has correct format
@@ -62,6 +64,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         response.getWriter().write("{\"error\": \"Invalid or expired token\"}");
                         return;
                     }
+                    
+                    // Extract admin status and store in request
+                    Boolean isAdmin = jwtUtil.extractAdmin(token);
+                    request.setAttribute("isAdmin", isAdmin);
+                    request.setAttribute("userEmail", username);
+                    
                     //token is valid
                     filterChain.doFilter(request, response);
 
