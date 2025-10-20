@@ -13,13 +13,23 @@ public class JwtUtil {
     private static final String SECRET_KEY_STRING = "MySecretKeyForJWTTokenValidationMustBeLongEnoughForHS256Algorithm";
     private final SecretKey jwtSecret = Keys.hmacShaKeyFor(SECRET_KEY_STRING.getBytes(StandardCharsets.UTF_8));
 
-    public String generateToken(String username) {
+    public String generateToken(String username, Boolean isAdmin) {
         return Jwts.builder()
                 .setSubject(username)
+                .claim("isAdmin", isAdmin)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + 86400000)) // 1 día
                 .signWith(jwtSecret)
                 .compact();
+    }
+
+    public Boolean extractAdmin(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(jwtSecret)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("isAdmin", Boolean.class);
     }
 
     public String extractEmail(String token) {

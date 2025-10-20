@@ -34,7 +34,8 @@ public class AccountController {
             return ResponseEntity.status(401).body("Invalid username or password");
         }
         Customer customer = customerOpt.get();
-        String token = jwtUtil.generateToken(customer.getName());
+        //incl admin status in token
+        String token = jwtUtil.generateToken(customer.getName(), customer.getAdmin());
         return ResponseEntity.ok(token);
     }
 
