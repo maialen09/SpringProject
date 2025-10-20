@@ -76,23 +76,36 @@ export function App(props) {
   // Real events for the logged-in user
   const [userEvents, setUserEvents] = useState([]);
 
+  // Store registrations to link event and registrationId
+  const [registrations, setRegistrations] = useState([]);
   useEffect(() => {
     const customerId = localStorage.getItem('customerId');
     if (!customerId) return;
-    // Fetch registrations for this customer
     fetch(`http://localhost:8080/api/registrations/customer/${customerId}`)
       .then(res => res.json())
-      .then(async registrations => {
-        // For each registration, fetch event details
-        const eventPromises = registrations.map(reg =>
+      .then(async regs => {
+        setRegistrations(regs);
+        const eventPromises = regs.map(reg =>
           fetch(`http://localhost:8080/api/events/${reg.eventId}`)
             .then(res => res.ok ? res.json() : null)
         );
         const events = await Promise.all(eventPromises);
-        // Filter out failed fetches
-        setUserEvents(events.filter(e => e));
+        // Attach registrationId to each event for deletion
+        const eventsWithRegId = events.map((event, idx) => event ? { ...event, registrationId: regs[idx].id } : null);
+        setUserEvents(eventsWithRegId.filter(e => e));
       });
   }, []);
+
+  // Delete registration for an event
+  const handleDeleteEvent = (registrationId) => {
+    fetch(`http://localhost:8080/api/registrations/${registrationId}`, { method: 'DELETE' })
+      .then(res => {
+        if (res.ok) {
+          // Remove event from userEvents
+          setUserEvents(prev => prev.filter(ev => ev.registrationId !== registrationId));
+        }
+      });
+  };
 
   return ( 
     <div>
@@ -106,17 +119,21 @@ export function App(props) {
               <th>Event Name</th>
               <th>Date</th>
               <th>Location</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
             {userEvents.length === 0 ? (
-              <tr><td colSpan="3">No events found</td></tr>
+              <tr><td colSpan="4">No events found</td></tr>
             ) : (
               userEvents.map((event, idx) => (
                 <tr key={idx}>
                   <td>{event.event_name || event.eventName}</td>
                   <td>{event.event_date || event.eventDate}</td>
                   <td>{event.location}</td>
+                  <td>
+                    <button onClick={() => handleDeleteEvent(event.registrationId)} style={{color: 'red'}}>Delete</button>
+                  </td>
                 </tr>
               ))
             )}

@@ -14,7 +14,7 @@ import java.util.List;
 @CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class EventController {
     @Autowired
-	public EventRepository eventRepository;
+	private EventRepository EventRepository;
 
     //check if user is admin
     private boolean isAdmin(HttpServletRequest request) {
@@ -25,7 +25,7 @@ public class EventController {
     //Get all events
     @GetMapping()
     public ResponseEntity<List<Event>> getAllEvents() {
-        List<Event> events = (List<Event>) eventRepository.findAll();
+        List<Event> events = (List<Event>) EventRepository.findAll();
         if (events.isEmpty()){
             System.out.println("no events found");
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
@@ -84,10 +84,4 @@ public class EventController {
         if (!eventRepository.existsById(id)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        eventRepository.deleteById(id);
-        List<Event> events = (List<Event>) eventRepository.findAll();
-        System.out.println("Deleted event with id: " + id);
-        return new ResponseEntity<>(events, HttpStatus.OK);
-    }
 }
-
