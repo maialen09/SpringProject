@@ -22,6 +22,9 @@ public class Customer {
 
     String password;
 
+	@Column(name = "ADMIN")
+	Boolean admin = false;
+
 	public long getId() {
 		return id;
 	}
@@ -54,14 +57,23 @@ public class Customer {
         this.password = password;
     }
 
+	public Boolean getAdmin() {
+		return admin;
+	}
+
+	public void setAdmin(Boolean admin) {
+		this.admin = admin;
+	}
+
 	public Customer() {
 	}
 
-	public Customer(long id, String name, String email, String password) {
+	public Customer(long id, String name, String email, String password, Boolean admin) {
 		this.id = id;
 		this.name = name;
 		this.email = email;
         this.password = password;
+		this.admin = admin;
 	}
 	
 	
