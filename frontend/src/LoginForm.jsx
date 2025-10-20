@@ -30,6 +30,23 @@ export function LoginForm(props) {
       return;
     } else if (response.status === "success") {
       props.setUsername(credentials.username);
+      // store isAdmin flag in localStorage by decoding token payload
+      try {
+        const token = response.token || localStorage.getItem('jwtToken');
+        if (token) {
+          const parts = token.split('.');
+          if (parts.length >= 2) {
+            const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+            if (payload && payload.isAdmin) {
+              localStorage.setItem('isAdmin', 'true');
+            } else {
+              localStorage.removeItem('isAdmin');
+            }
+          }
+        }
+      } catch (e) {
+        console.error('Failed to parse token payload', e);
+      }
       // Fetch customer object and store ID
       try {
         const customer = await fetchCustomerId(credentials.username);
