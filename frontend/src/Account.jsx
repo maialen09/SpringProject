@@ -25,7 +25,9 @@ export function Account(props) {
   // Real events list from backend
   const [events, setEvents] = useState([]);
   const [eventsLoaded, setEventsLoaded] = useState(false);
+  const [userRegistrations, setUserRegistrations] = useState([]);
 
+  // Fetch all events
   const fetchEvents = () => {
     fetch('http://localhost:8080/api/events')
       .then(res => res.json())
@@ -36,10 +38,36 @@ export function Account(props) {
       .catch(() => setEventsLoaded(true));
   };
 
-  // Fetch events only when showing events and not already loaded
+  // Fetch user's registrations
+  const fetchUserRegistrations = () => {
+    const customerId = localStorage.getItem('customerId');
+    if (!customerId) return;
+    fetch(`http://localhost:8080/api/registrations/customer/${customerId}`)
+      .then(res => res.json())
+      .then(data => setUserRegistrations(data));
+  };
+
+  // Fetch events and registrations when showing events
   if (showEvents && !eventsLoaded) {
     fetchEvents();
+    fetchUserRegistrations();
   }
+
+  // Register for an event
+  const handleRegisterEvent = (eventId) => {
+    const customerId = localStorage.getItem('customerId');
+    if (!customerId) return;
+    fetch('http://localhost:8080/api/registrations', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customerId: Number(customerId), eventId: eventId })
+    })
+      .then(res => {
+        if (res.ok) {
+          fetchUserRegistrations(); // Refresh registrations
+        }
+      });
+  };
 
   return (
     <div style={padDivTop}>
@@ -81,15 +109,27 @@ export function Account(props) {
                 </thead>
                 <tbody>
                   {events.length === 0 ? (
-                    <tr><td colSpan="3">No events found</td></tr>
+                    <tr><td colSpan="4">No events found</td></tr>
                   ) : (
-                    events.map((event, idx) => (
-                      <tr key={idx}>
-                        <td>{event.event_name || event.eventName}</td>
-                        <td>{event.event_date || event.eventDate}</td>
-                        <td>{event.location}</td>
-                      </tr>
-                    ))
+                    events.map((event, idx) => {
+                      // Check if user is already registered for this event
+                      const isRegistered = userRegistrations.some(reg => reg.eventId === event.id);
+                      return (
+                        <tr key={idx}>
+                          <td>{event.event_name || event.eventName}</td>
+                          <td>{event.event_date || event.eventDate}</td>
+                          <td>{event.location}</td>
+                          <td>
+                            {!isRegistered && (
+                              <button onClick={() => handleRegisterEvent(event.id)} style={{color: 'green'}}>Sign Up</button>
+                            )}
+                            {isRegistered && (
+                              <span style={{color: 'gray'}}>Registered</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
