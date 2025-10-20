@@ -186,7 +186,7 @@ export function Account(props) {
                     <th>Date</th>
                     <th>Location</th>
                     {isAdmin && <th>Admin</th>}
-                    <th></th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -147,7 +147,7 @@ export function App(props) {
                   <td>{event.event_date || event.eventDate}</td>
                   <td>{event.location}</td>
                   <td>
-                    <button onClick={() => handleDeleteEvent(event.registrationId)} style={{color: 'red'}}>Delete</button>
+                    <button onClick={() => handleDeleteEvent(event.registrationId)} style={{color: 'red'}}>Leave Event</button>
                   </td>
                 </tr>
               ))
