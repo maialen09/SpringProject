@@ -22,12 +22,24 @@ export function Account(props) {
     } 
   }
 
-  // Simulated events list
-  const events = [
-    { event_name: "React Conference", event_date: "2025-11-10", event_location: "Madrid" },
-    { event_name: "Spring Boot Meetup", event_date: "2025-12-05", event_location: "Bilbao" },
-    { event_name: "Docker Day", event_date: "2026-01-20", event_location: "Barcelona" }
-  ];
+  // Real events list from backend
+  const [events, setEvents] = useState([]);
+  const [eventsLoaded, setEventsLoaded] = useState(false);
+
+  const fetchEvents = () => {
+    fetch('http://localhost:8080/api/events')
+      .then(res => res.json())
+      .then(data => {
+        setEvents(data);
+        setEventsLoaded(true);
+      })
+      .catch(() => setEventsLoaded(true));
+  };
+
+  // Fetch events only when showing events and not already loaded
+  if (showEvents && !eventsLoaded) {
+    fetchEvents();
+  }
 
   return (
     <div style={padDivTop}>
@@ -68,13 +80,17 @@ export function Account(props) {
                   </tr>
                 </thead>
                 <tbody>
-                  {events.map((event, idx) => (
-                    <tr key={idx}>
-                      <td>{event.event_name}</td>
-                      <td>{event.event_date}</td>
-                      <td>{event.event_location}</td>
-                    </tr>
-                  ))}
+                  {events.length === 0 ? (
+                    <tr><td colSpan="3">No events found</td></tr>
+                  ) : (
+                    events.map((event, idx) => (
+                      <tr key={idx}>
+                        <td>{event.event_name || event.eventName}</td>
+                        <td>{event.event_date || event.eventDate}</td>
+                        <td>{event.location}</td>
+                      </tr>
+                    ))
+                  )}
                 </tbody>
               </table>
             </div>
