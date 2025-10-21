@@ -45,6 +45,15 @@ export function App(props) {
   }
 
   let onDeleteClick = function () {
+    // Get the logged-in customer's ID
+    const currentCustomerId = localStorage.getItem('customerId');
+    
+    // Check if trying to delete own account
+    if (formObject.id >= 0 && formObject.id == currentCustomerId) {
+      alert("You cannot delete your own account while logged in!");
+      return;
+    }
+    
     let postopCallback = () => { setFormObject(blankCustomer); }
     if (formObject.id >= 0) {
       deleteById(formObject.id, postopCallback);
@@ -70,7 +79,8 @@ export function App(props) {
     formObject: formObject,
     onDeleteClick: onDeleteClick,
     onSaveClick: onSaveClick,
-    onCancelClick: onCancelClick
+    onCancelClick: onCancelClick,
+    currentCustomerId: localStorage.getItem('customerId')  // Pass current user's ID
   }
 
   // Real events for the logged-in user

@@ -6,6 +6,7 @@ import com.example.event_api.repository.CustomerRepository;
 import com.example.event_api.model.Customer;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -76,11 +77,21 @@ public class CustomerController {
 
     //delete customer
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCustomer(@PathVariable Long id) {
+    public ResponseEntity<?> deleteCustomer(@PathVariable Long id, HttpServletRequest request) {
+        // Get the logged-in user's email from the JWT
+        String userEmail = (String) request.getAttribute("userEmail");
+        
         Customer customer = customerRepository.findById(id).orElse(null);
         if (customer == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        
+        // Prevent users from deleting their own account
+        if (userEmail != null && userEmail.equals(customer.getEmail())) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body("You cannot delete your own account while logged in");
+        }
+        
         customerRepository.delete(customer);
         System.out.println("Deleted customer with id: " + id);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
