@@ -146,6 +146,36 @@ export function Account(props) {
     );
   }
 
+  // Admin: edit event inline
+  const [editingEventId, setEditingEventId] = useState(null);
+  const [editForm, setEditForm] = useState({ eventName: '', eventDate: '', location: '' });
+
+  const startEdit = (event) => {
+    setEditingEventId(event.id);
+    setEditForm({ eventName: event.event_name || event.eventName || '', eventDate: event.event_date || event.eventDate || '', location: event.location || '' });
+  };
+
+  const cancelEdit = () => {
+    setEditingEventId(null);
+    setEditForm({ eventName: '', eventDate: '', location: '' });
+  };
+
+  const saveEdit = async (id) => {
+    const token = localStorage.getItem('jwtToken');
+    const payload = { eventName: editForm.eventName, eventDate: editForm.eventDate, location: editForm.location };
+    const res = await fetch(`http://localhost:8080/api/events/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) },
+      body: JSON.stringify(payload)
+    });
+    if (res.ok) {
+      cancelEdit();
+      fetchEvents();
+    } else {
+      console.error('Failed to update event', res.status);
+    }
+  };
+
   return (
     <div style={padDivTop}>
       <div className='boxed pad5' >
@@ -195,25 +225,43 @@ export function Account(props) {
                   ) : (
                     events.map((event, idx) => {
                       const isRegistered = userRegistrations.some(reg => reg.eventId === event.id);
+                      const editing = editingEventId === event.id;
                       return (
                         <tr key={idx}>
-                          <td>{event.event_name || event.eventName}</td>
-                          <td>{event.event_date || event.eventDate}</td>
-                          <td>{event.location}</td>
-                          {isAdmin && (
+                          {editing ? (
+                            <>
+                              <td><input value={editForm.eventName} onChange={(e) => setEditForm(f => ({...f, eventName: e.target.value}))} /></td>
+                              <td><input value={editForm.eventDate} onChange={(e) => setEditForm(f => ({...f, eventDate: e.target.value}))} /></td>
+                              <td><input value={editForm.location} onChange={(e) => setEditForm(f => ({...f, location: e.target.value}))} /></td>
+                              {isAdmin && (
                                 <td>
-                                  <button onClick={() => handleDeleteEventAdmin(event.id)} style={{color: 'red'}}>Delete</button>
+                                  <button onClick={() => saveEdit(event.id)} style={{color: 'green'}}>Save</button>
+                                  <button onClick={cancelEdit} style={{marginLeft:'6px'}}>Cancel</button>
                                 </td>
                               )}
-                          <td>
-                            {!isRegistered && !isAdmin && (
-                              <button onClick={() => handleRegisterEvent(event.id)} style={{color: 'green'}}>Sign Up</button>
-  
-                            )}
-                            {isRegistered && !isAdmin && (
-                              <span style={{color: 'gray'}}>Registered</span>
-                            )}
-                          </td>
+                              <td></td>
+                            </>
+                          ) : (
+                            <>
+                              <td>{event.event_name || event.eventName}</td>
+                              <td>{event.event_date || event.eventDate}</td>
+                              <td>{event.location}</td>
+                              {isAdmin && (
+                                <td>
+                                  <button onClick={() => handleDeleteEventAdmin(event.id)} style={{color: 'red', marginRight: '10px'}}>Delete</button>
+                                  <button onClick={() => startEdit(event)} style={{marginLeft:'10px'}}>Edit</button>
+                                </td>
+                              )}
+                              <td>
+                                {!isRegistered && !isAdmin && (
+                                  <button onClick={() => handleRegisterEvent(event.id)} style={{color: 'green'}}>Sign Up</button>
+                                )}
+                                {isRegistered && !isAdmin && (
+                                  <span style={{color: 'gray'}}>Registered</span>
+                                )}
+                              </td>
+                            </>
+                          )}
                         </tr>
                       );
                     })
